@@ -1,5 +1,5 @@
 # Car Reverse System
-
+**To run the pro0gram in stm32cubeide, just import the zip file "Car_Reverse_System.zip"**
 ## Group member
 1) LOO IX SHEN
 2) JAMES FOO
