@@ -216,7 +216,7 @@ int main(void)
 	    HAL_Delay(50);
 
 	    // BUZZER
-	    if (Distance <= 20) {
+	    if (Distance <= 15) {
 	        beep_modes(0); // Highest beep frequency
 	        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET); // Turn on LED
 	        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_RESET); // Turn off motor
