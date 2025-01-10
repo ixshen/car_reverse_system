@@ -131,8 +131,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET); // Default turn off buzzer
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Default turn on buzzer
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET); // Default turn off buzzer
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Default turn on buzzer
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -171,7 +171,7 @@ int main(void)
   while (1)
   {
 	    // ULTRASONIC
-	  	HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // Pull the TRIG pin HIGH
+	    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // Pull the TRIG pin HIGH
 	    __HAL_TIM_SET_COUNTER(&htim1, 0); // Reset timer counter to 0
 	    while (__HAL_TIM_GET_COUNTER (&htim1) < 10);  // Wait for 10 us
 	    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // Pull the TRIG pin low
@@ -211,6 +211,7 @@ int main(void)
 		        SSD1306_Puts(strCopy, &Font_16x26, 1);
 		    }
 	  	}
+	    
 	    SSD1306_UpdateScreen();
 	    HAL_Delay(50);
 
