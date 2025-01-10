@@ -55,7 +55,7 @@
 #define INTERVAL_3 250
 #define INTERVAL_4 100
 
-// ULTRASONIC
+// ULTRASONIC PARAMETERS
 #define TRIG_PIN GPIO_PIN_9
 #define TRIG_PORT GPIOA
 #define ECHO_PIN GPIO_PIN_8
@@ -66,7 +66,7 @@ uint32_t Value2 = 0;
 uint16_t Distance  = 0;
 char strCopy[15];
 
-// INTERRUPT
+// INTERRUPT APARAMETERS
 static bool mode = 0;
 uint8_t display = 0;
 
@@ -84,25 +84,25 @@ void SystemClock_Config(void);
 // Function to let buzzer beep with different time intervals
 void beep_modes(int beep_mode) {
     switch (beep_mode) {
-      case 0: // Distance < 15cm
-    	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+      case 0: // Distance < 20cm
+    	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET); //Set buzzer pin to high
     	  HAL_Delay(100);        // Buzzer ON duration (100 ms)
-    	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+    	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET); // Set buzzer pin to low
     	  HAL_Delay(INTERVAL_4); // Delay between beeps
     	  break;
-      case 1:
+      case 1: // Distance < 40cm
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
     	  HAL_Delay(100);
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
     	  HAL_Delay(INTERVAL_3);
     	  break;
-      case 2:
+      case 2: // Distance < 60cm
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
     	  HAL_Delay(100);
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
     	  HAL_Delay(INTERVAL_2);
     	  break;
-      case 3:
+      case 3: // Distance < 80cm
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
     	  HAL_Delay(100);
     	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
@@ -130,10 +130,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Turn ON motor
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET); // Default turn off buzzer
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Default turn on buzzer
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -173,7 +172,7 @@ int main(void)
   {
 	    // ULTRASONIC
 	  	HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // Pull the TRIG pin HIGH
-	    __HAL_TIM_SET_COUNTER(&htim1, 0);
+	    __HAL_TIM_SET_COUNTER(&htim1, 0); // Reset timer counter to 0
 	    while (__HAL_TIM_GET_COUNTER (&htim1) < 10);  // Wait for 10 us
 	    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // Pull the TRIG pin low
 
@@ -187,27 +186,27 @@ int main(void)
 	    while ((HAL_GPIO_ReadPin (ECHO_PORT, ECHO_PIN)) && pMillis + 50 > HAL_GetTick());
 	    Value2 = __HAL_TIM_GET_COUNTER (&htim1);
 
-	    Distance = (Value2-Value1)* 0.034/2;
-	    int Distance_inch = Distance/2.54;
+	    Distance = (Value2-Value1)* 0.034/2; // Distacne in cm
+	    int Distance_inch = Distance/2.54; // Distacne in inch
 
 	    // SSD1306 OLED DISPLAY
 	    SSD1306_GotoXY(0, 0);
 	    SSD1306_Puts("Distance:", &Font_11x18, 1); // First row, display "Distance:"
 
-	  	if (display == 0){
+	  	if (display == 0){ // Display in cm -> trigger by interrupt
 		    sprintf(strCopy, "%d cm    ", Distance);
 		    SSD1306_GotoXY(0, 30); // Second Row
 	  		if (Distance < 2 || Distance > 80) {
-		        SSD1306_Puts("Too far", &Font_16x26, 1); // "Too far" if distance > 50
+		        SSD1306_Puts("Too far", &Font_16x26, 1); // "Too far" if distance > 80
 		    } else {
-		        SSD1306_Puts(strCopy, &Font_16x26, 1);
+		        SSD1306_Puts(strCopy, &Font_16x26, 1); // Normal display
 		    }
 
-	  	} else {
+	  	} else { // Display in inch -> trigger by interrupt
 		    sprintf(strCopy, "%d inch  ", Distance_inch);
-		    SSD1306_GotoXY(0, 30); // Second Row
+		    SSD1306_GotoXY(0, 30);
 	  		if (Distance < 2 || Distance > 80) {
-		        SSD1306_Puts("Too far", &Font_16x26, 1); // "Too far" if distance > 50
+		        SSD1306_Puts("Too far", &Font_16x26, 1);
 		    } else {
 		        SSD1306_Puts(strCopy, &Font_16x26, 1);
 		    }
@@ -216,7 +215,7 @@ int main(void)
 	    HAL_Delay(50);
 
 	    // BUZZER
-	    if (Distance <= 15) {
+	    if (Distance <= 20) {
 	        beep_modes(0); // Highest beep frequency
 	        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET); // Turn on LED
 	        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_RESET); // Turn off motor
@@ -232,7 +231,7 @@ int main(void)
 	        beep_modes(3); // Lowest beep frequency
 	        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); // Turn off LED
 	        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Turn on motor
-	    } else {
+	    } else { // Distance > 80cm, too far, no beeping
 	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET); // Turn off buzzer
 	    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); // Turn off LED
 	        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_SET); // Turn on motor
