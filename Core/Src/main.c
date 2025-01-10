@@ -66,7 +66,7 @@ uint32_t Value2 = 0;
 uint16_t Distance  = 0;
 char strCopy[15];
 
-// INTERRUPT APARAMETERS
+// INTERRUPT PARAMETERS
 static bool mode = 0;
 uint8_t display = 0;
 
